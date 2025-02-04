@@ -1,12 +1,15 @@
 #  Biometric authentificator
 
 ![Maven Central Version](https://img.shields.io/maven-central/v/io.github.zaval/biometricauth?style=flat)
+![GitHub License](https://img.shields.io/github/license/zaval/biometric-auth-ktx)
+
 
 [![compose-mp-version](https://img.shields.io/badge/compose--multiplatform-1.7.0-blue)](https://github.com/JetBrains/compose-multiplatform)
 [![kotlin-version](https://img.shields.io/badge/kotlin-2.0.20-blue)](https://github.com/JetBrains/kotlin)
 
 ![badge-iOS](https://img.shields.io/badge/Platform-iOS-lightgray)
 ![badge-Android](https://img.shields.io/badge/Platform-Android-brightgreen)
+
 
 
 Biometric Authenticator is a Kotlin Multiplatform library designed to provide seamless biometric authentication, supporting fingerprint on Android and FaceID on iOS.
@@ -28,6 +31,20 @@ dependencies {
 ```
 
 Replace <latest-version> with the latest version available on Maven Central.
+
+### Android
+
+Use `FragmentActivity` instead of `AppCompatActivity` in main activity class parent.
+
+### iOS
+
+Add `NSFaceIDUsageDescription` key in Info.plist file of your project
+
+```xml
+<key>NSFaceIDUsageDescription</key>
+<string>Privacy - Face ID Usage Description</string>
+```
+
 
 ## Usage
 
@@ -84,6 +101,17 @@ fun AuthPage() {
 ```
 
 ## API Documentation
+
+### rememberBiometricAuthHelper
+
+**rememberBiometricAuthHelper** is a composable function that provides an instance of the **BiometricAuthHelper**. This helper is used to manage biometric authentication in a Kotlin Multiplatform project.
+
+#### Parameters
+
+- `title: String`: The title which displays in the authentication dialog presented to the user.
+- `subTitle: String`: The title which displays in the authentication dialog presented to the user. (Visible on Android only)
+- `cancelText: String`: Text for the Cancel button on the authentication dialog
+- `server: String`: The server string used by **BiometricAuthStorage** for storing secret values
 
 ### BiometricAuthHelper
 
@@ -154,4 +182,18 @@ Contributions are welcome! Please feel free to submit issues, feature requests, 
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```
+Copyright 2025 Dmytrii Zavalnyi.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
