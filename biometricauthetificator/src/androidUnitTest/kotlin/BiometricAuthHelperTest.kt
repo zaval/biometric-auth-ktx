@@ -56,80 +56,87 @@ class BiometricAuthHelperTest {
     @Test
     fun `test BiometricAuthHelper authenticate success`() {
         val biometricEncryptedPreferences = mockk<BiometricEncryptedPreferences>()
-        mockkConstructor(BiometricEncryptedPreferences::class)
-        every {
-            anyConstructed<BiometricEncryptedPreferences>().setupBiometricAccess(
-                onSuccess = any(),
-                onFailure = any()
-            )
-        } answers {
-            val onSuccess = firstArg<(SharedPreferences) -> Unit>()
-            onSuccess(sharedPreferences)
-        }
 
-        val biometricAuthHelper = BiometricAuthHelper(
-            title = "Test Title",
-            subTitle = "Test Subtitle",
-            cancelText = "Cancel",
-            server = "Test Server",
-            context = context
-        )
-
-        var successCalled = false
-        biometricAuthHelper.authenticate(
-            onFailure = { },
-            onSuccess = { biometricAuthStorage ->
-                successCalled = true
-                assertEquals(sharedPreferences, biometricAuthStorage.SharedPreference)
+        mockkConstructor(BiometricEncryptedPreferences::class){
+            every {
+                anyConstructed<BiometricEncryptedPreferences>().setupBiometricAccess(
+                    onSuccess = any(),
+                    onFailure = any()
+                )
+            } answers {
+                val onSuccess = firstArg<(SharedPreferences) -> Unit>()
+                onSuccess(sharedPreferences)
             }
-        )
 
-        assert(successCalled)
-        verify {
-            anyConstructed<BiometricEncryptedPreferences>().setupBiometricAccess(
-                onFailure = any(),
-                onSuccess = any()
+            val biometricAuthHelper = BiometricAuthHelper(
+                title = "Test Title",
+                subTitle = "Test Subtitle",
+                cancelText = "Cancel",
+                server = "Test Server",
+                context = context
             )
+
+            var successCalled = false
+            biometricAuthHelper.authenticate(
+                onFailure = { },
+                onSuccess = { biometricAuthStorage ->
+                    successCalled = true
+                    assertEquals(sharedPreferences, biometricAuthStorage.SharedPreference)
+                }
+            )
+
+            assert(successCalled)
+            verify {
+                anyConstructed<BiometricEncryptedPreferences>().setupBiometricAccess(
+                    onFailure = any(),
+                    onSuccess = any()
+                )
+            }
         }
+
+
+
     }
 
     @Test
     fun `test BiometricAuthHelper authenticate failure`() {
         val biometricEncryptedPreferences = mockk<BiometricEncryptedPreferences>()
-        mockkConstructor(BiometricEncryptedPreferences::class)
-        every {
-            anyConstructed<BiometricEncryptedPreferences>().setupBiometricAccess(
-                onSuccess = any(),
-                onFailure = any(),
+        mockkConstructor(BiometricEncryptedPreferences::class){
+            every {
+                anyConstructed<BiometricEncryptedPreferences>().setupBiometricAccess(
+                    onSuccess = any(),
+                    onFailure = any(),
+                )
+            } answers {
+                val onFailure = secondArg<(String) -> Unit>()
+                onFailure("Authentication failed")
+            }
+
+            val biometricAuthHelper = BiometricAuthHelper(
+                title = "Test Title",
+                subTitle = "Test Subtitle",
+                cancelText = "Cancel",
+                server = "Test Server",
+                context = context
             )
-        } answers {
-            val onFailure = secondArg<(String) -> Unit>()
-            onFailure("Authentication failed")
+
+            var failureCalled = false
+            biometricAuthHelper.authenticate(
+                onFailure = { error ->
+                    failureCalled = true
+                    assertEquals("Authentication failed", error)
+                },
+                onSuccess = { }
+            )
+
+            assert(failureCalled)
+            verify {
+                anyConstructed<BiometricEncryptedPreferences>().setupBiometricAccess(
+                    onFailure = any(),
+                    onSuccess = any()
+                )
+            }
         }
 
-        val biometricAuthHelper = BiometricAuthHelper(
-            title = "Test Title",
-            subTitle = "Test Subtitle",
-            cancelText = "Cancel",
-            server = "Test Server",
-            context = context
-        )
-
-        var failureCalled = false
-        biometricAuthHelper.authenticate(
-            onFailure = { error ->
-                failureCalled = true
-                assertEquals("Authentication failed", error)
-            },
-            onSuccess = { }
-        )
-
-        assert(failureCalled)
-        verify {
-            anyConstructed<BiometricEncryptedPreferences>().setupBiometricAccess(
-                onFailure = any(),
-                onSuccess = any()
-            )
-        }
     }
 }

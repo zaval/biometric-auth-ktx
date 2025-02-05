@@ -22,8 +22,8 @@ jobs:
     strategy:
       matrix:
         include:
-#          - target: iosSimulatorArm64Test
-#            os: macos-latest
+          - target: iosSimulatorArm64Test
+            os: macos-latest
 #          - target: jvmTest
 #            os: ubuntu-latest
 #          - target: linuxX64Test
@@ -37,7 +37,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Validate Gradle Wrapper
-      uses: gradle/actions/wrapper-validation@v3
+      uses: gradle/wrapper-validation-action@v1
     - uses: actions/cache@v3
       with:
         path: |
