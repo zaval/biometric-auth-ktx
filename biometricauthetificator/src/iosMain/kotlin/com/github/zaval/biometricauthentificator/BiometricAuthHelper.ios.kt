@@ -10,6 +10,7 @@ import platform.Foundation.NSError
 import platform.LocalAuthentication.LAContext
 import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication
 import platform.Security.*
+import androidx.compose.runtime.remember
 
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
@@ -21,11 +22,12 @@ actual class BiometricAuthHelper(
 ) {
 
     private val mainScope = CoroutineScope(Dispatchers.Main)
+    private val context = LAContext()
 
     @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     actual fun authenticate(onFailure: (String) -> Unit, onSuccess: (BiometricAuthStorage) -> Unit) {
         mainScope.launch {
-            val context = LAContext()
+
             val errorPtr = nativeHeap.alloc<ObjCObjectVar<NSError?>>()
             context.touchIDAuthenticationAllowableReuseDuration = 30.0
             if (context.canEvaluatePolicy(LAPolicyDeviceOwnerAuthentication, error = errorPtr.ptr)) {
@@ -51,6 +53,11 @@ actual class BiometricAuthHelper(
         }
     }
 
+    @OptIn(ExperimentalForeignApi::class)
+    actual fun isAvailable(): Boolean {
+        return context.canEvaluatePolicy(LAPolicyDeviceOwnerAuthentication, error = null)
+    }
+
 }
 
 @Composable
@@ -60,12 +67,14 @@ actual fun rememberBiometricAuthHelper(
     cancelText: String,
     server: String,
 ): BiometricAuthHelper{
-    return BiometricAuthHelper(
-        title = title,
-        subTitle = subTitle,
-        cancelText = cancelText,
-        server = server,
-    )
+    return remember {
+        BiometricAuthHelper(
+            title = title,
+            subTitle = subTitle,
+            cancelText = cancelText,
+            server = server,
+        )
+    }
 }
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
@@ -79,6 +88,7 @@ actual class BiometricAuthStorage(
         val queryDict = CFDictionaryCreateMutable(null, 0, null, null)
         CFDictionaryAddValue(queryDict, kSecClass, kSecClassInternetPassword)
         CFDictionaryAddValue(queryDict, kSecAttrServer, server.toCFString())
+        CFDictionaryAddValue(queryDict, kSecAttrAccount, key.toCFString())
         CFDictionaryAddValue(queryDict, kSecMatchLimit, kSecMatchLimitOne)
         CFDictionaryAddValue(queryDict, kSecReturnAttributes, true.toCFBoolean())
         val contextPtr = context.objcPtr()

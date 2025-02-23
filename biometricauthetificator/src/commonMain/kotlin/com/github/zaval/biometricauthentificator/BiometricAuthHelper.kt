@@ -1,6 +1,6 @@
 package com.github.zaval.biometricauthentificator
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 
 
 enum class BiometricAuthErrorMessage(val message: String){
@@ -23,6 +23,7 @@ expect class BiometricAuthStorage{
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect class BiometricAuthHelper{
     fun authenticate(onFailure: (String) -> Unit, onSuccess: (BiometricAuthStorage) -> Unit)
+    fun isAvailable(): Boolean
 
     val title: String
     val subTitle: String
@@ -38,3 +39,33 @@ expect fun rememberBiometricAuthHelper(
     cancelText: String = "Cancel",
     server: String = "zaval.github.io",
 ): BiometricAuthHelper
+
+@Composable
+fun rememberBiometricAuthStorage(
+    title: String = "Biometric Authentication",
+    subTitle: String = "Authenticate to access secure data",
+    cancelText: String = "Cancel",
+    server: String = "zaval.github.io",
+    onFailure: (String) -> Unit = {}
+): BiometricAuthStorage? {
+    val biometricAuthHelper = rememberBiometricAuthHelper(title, subTitle, cancelText, server)
+    var biometricAuthStorage: BiometricAuthStorage? by remember { mutableStateOf(null)  }
+    LaunchedEffect(biometricAuthHelper){
+        if (!biometricAuthHelper.isAvailable()) {
+            biometricAuthStorage = null
+            onFailure(BiometricAuthErrorMessage.NOT_SUPPORTED.message)
+            return@LaunchedEffect
+        }
+        biometricAuthHelper.authenticate(
+            onFailure = {
+                biometricAuthStorage = null
+                onFailure(it)
+                        },
+            onSuccess = {
+                biometricAuthStorage = it
+            }
+        )
+    }
+
+    return biometricAuthStorage
+}

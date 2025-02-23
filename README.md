@@ -100,6 +100,19 @@ fun AuthPage() {
 }
 ```
 
+### Remember Encrypted Storage
+
+```kotlin
+val biometricAuthStorage = rememberBiometricAuthStorage {
+    println("Auth storage $it")
+    val accessToken = it.getValue("token")
+    // accessToken is a saved value
+
+    it.setValue("token", accessToken)
+    // Save accessToken to the encrypted storage
+}
+```
+
 ## API Documentation
 
 ### rememberBiometricAuthHelper
@@ -112,6 +125,18 @@ fun AuthPage() {
 - `subTitle: String`: The title which displays in the authentication dialog presented to the user. (Visible on Android only)
 - `cancelText: String`: Text for the Cancel button on the authentication dialog
 - `server: String`: The server string used by **BiometricAuthStorage** for storing secret values
+
+### rememberBiometricAuthHelper
+
+**rememberBiometricAuthStorage** is a composable function that provides an instance of the **BiometricAuthStorage**. This helper is used to access the encrypted key-value storage in a Kotlin Multiplatform project.
+
+#### Parameters
+
+- `title: String`: The title which displays in the authentication dialog presented to the user.
+- `subTitle: String`: The title which displays in the authentication dialog presented to the user. (Visible on Android only)
+- `cancelText: String`: Text for the Cancel button on the authentication dialog
+- `server: String`: The server string used by **BiometricAuthStorage** for storing secret values
+- `onFailure: (String) -> Unit`: A callback invoked when authentication fails, providing an error message.
 
 ### BiometricAuthHelper
 

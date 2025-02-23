@@ -93,7 +93,7 @@ class BiometricEncryptedPreferences(
         )
     }
 
-    private fun isBiometricAvailable(): Boolean {
+    fun isBiometricAvailable(): Boolean {
         val biometricManager = BiometricManager.from(context)
         return when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
             BiometricManager.BIOMETRIC_SUCCESS -> true
