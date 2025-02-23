@@ -27,15 +27,16 @@ actual class BiometricAuthHelper(
     val context: Context
 ) {
 
+    private val biometricEncryptedPreferences = BiometricEncryptedPreferences(
+        title,
+        subTitle,
+        cancelText,
+        server,
+        context
+    )
+
     actual fun authenticate(onFailure: (String) -> Unit, onSuccess: (BiometricAuthStorage) -> Unit) {
 
-        val biometricEncryptedPreferences = BiometricEncryptedPreferences(
-            title,
-            subTitle,
-            cancelText,
-            server,
-            context
-        )
         biometricEncryptedPreferences.setupBiometricAccess(
             onFailure = onFailure,
             onSuccess = {sharedPreferences ->
@@ -43,6 +44,10 @@ actual class BiometricAuthHelper(
             }
         )
 
+    }
+
+    actual fun isAvailable(): Boolean {
+        return biometricEncryptedPreferences.isBiometricAvailable()
     }
 
 }
